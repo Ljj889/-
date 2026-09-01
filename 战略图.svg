@@ -39,8 +39,8 @@
 
 <g>
   <rect x="40" y="186" width="600" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.5"/>
-  <text x="52" y="206" font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C" dominant-baseline="central">三处同步一致 · 当前位置</text>
-  <text x="52" y="224" font-family="sans-serif" font-size="12" fill="#185FA5" dominant-baseline="central">WorkBuddy ~/.workbuddy · CodeBuddy ~/.codebuddy · Codex D:/Ai/codex — 版本/脚本/资产/引用 100% 一致</text>
+  <text x="52" y="206" font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C" dominant-baseline="central">三处同步一致 + 同步脚本固化 · 当前位置</text>
+  <text x="52" y="224" font-family="sans-serif" font-size="12" fill="#185FA5" dominant-baseline="central">WorkBuddy / CodeBuddy / Codex 100% 一致 · sync_to_platforms.sh 一键同步 · .bak 已归档 archive/</text>
 </g>
 
 <text x="40" y="268" font-family="sans-serif" font-size="12" font-weight="500" fill="#2C2C2A">待办（按优先级）</text>
@@ -48,7 +48,7 @@
 <g>
   <rect x="40" y="278" width="140" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
   <text x="110" y="298" font-family="sans-serif" font-size="13" font-weight="500" fill="#633806" text-anchor="middle" dominant-baseline="central">推远程私有仓</text>
-  <text x="110" y="316" font-family="sans-serif" font-size="12" fill="#854F0B" text-anchor="middle" dominant-baseline="central">gh 未装 · 待家俊</text>
+  <text x="110" y="316" font-family="sans-serif" font-size="12" fill="#854F0B" text-anchor="middle" dominant-baseline="central">gh 已装 · 待登录</text>
 </g>
 <g>
   <rect x="193" y="278" width="140" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
