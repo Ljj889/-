@@ -1,0 +1,73 @@
+<svg viewBox="0 0 680 392" width="100%" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>six-layer-orchestrator 独立化战略图 v3.13.0</title>
+<desc>两版合并 → 独立仓库 → 三处同步的进度与范围地图</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<text x="40" y="26" font-family="sans-serif" font-size="15" font-weight="500" fill="#2C2C2A">six-layer-orchestrator 独立化 · v3.13.0</text>
+<text x="40" y="46" font-family="sans-serif" font-size="12" fill="#5F5E5A">两版合并 → 独立仓库 → 三处同步 · 框架从平台寄生升级为可移植资产</text>
+
+<rect x="40" y="62" width="600" height="14" rx="7" fill="#F1EFE8" stroke="none"/>
+<rect x="40" y="62" width="500" height="14" rx="7" fill="#0F6E56" stroke="none"/>
+<text x="345" y="69" font-family="sans-serif" font-size="11" fill="#04342C" text-anchor="middle" dominant-baseline="central" font-weight="500">里程碑 5/6 · 83%</text>
+
+<text x="40" y="104" font-family="sans-serif" font-size="12" font-weight="500" fill="#2C2C2A">已落地（v3.13.0 锁定）</text>
+
+<g>
+  <rect x="40" y="114" width="140" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="110" y="134" font-family="sans-serif" font-size="13" font-weight="500" fill="#085041" text-anchor="middle" dominant-baseline="central">两版合并</text>
+  <text x="110" y="152" font-family="sans-serif" font-size="12" fill="#0F6E56" text-anchor="middle" dominant-baseline="central">规则 1-75 · 60 条</text>
+</g>
+<g>
+  <rect x="193" y="114" width="140" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="263" y="134" font-family="sans-serif" font-size="13" font-weight="500" fill="#085041" text-anchor="middle" dominant-baseline="central">知识库 17 条</text>
+  <text x="263" y="152" font-family="sans-serif" font-size="12" fill="#0F6E56" text-anchor="middle" dominant-baseline="central">R+ADR+G 全并集</text>
+</g>
+<g>
+  <rect x="346" y="114" width="140" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="416" y="134" font-family="sans-serif" font-size="13" font-weight="500" fill="#085041" text-anchor="middle" dominant-baseline="central">引擎脚本 6 个</text>
+  <text x="416" y="152" font-family="sans-serif" font-size="12" fill="#0F6E56" text-anchor="middle" dominant-baseline="central">checkpoint/cost/life</text>
+</g>
+<g>
+  <rect x="499" y="114" width="140" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="569" y="134" font-family="sans-serif" font-size="13" font-weight="500" fill="#085041" text-anchor="middle" dominant-baseline="central">独立仓库 + tag</text>
+  <text x="569" y="152" font-family="sans-serif" font-size="12" fill="#0F6E56" text-anchor="middle" dominant-baseline="central">commit 3bc933b</text>
+</g>
+
+<g>
+  <rect x="40" y="186" width="600" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="1.5"/>
+  <text x="52" y="206" font-family="sans-serif" font-size="13" font-weight="500" fill="#0C447C" dominant-baseline="central">三处同步一致 · 当前位置</text>
+  <text x="52" y="224" font-family="sans-serif" font-size="12" fill="#185FA5" dominant-baseline="central">WorkBuddy ~/.workbuddy · CodeBuddy ~/.codebuddy · Codex D:/Ai/codex — 版本/脚本/资产/引用 100% 一致</text>
+</g>
+
+<text x="40" y="268" font-family="sans-serif" font-size="12" font-weight="500" fill="#2C2C2A">待办（按优先级）</text>
+
+<g>
+  <rect x="40" y="278" width="140" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+  <text x="110" y="298" font-family="sans-serif" font-size="13" font-weight="500" fill="#633806" text-anchor="middle" dominant-baseline="central">推远程私有仓</text>
+  <text x="110" y="316" font-family="sans-serif" font-size="12" fill="#854F0B" text-anchor="middle" dominant-baseline="central">gh 未装 · 待家俊</text>
+</g>
+<g>
+  <rect x="193" y="278" width="140" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="263" y="298" font-family="sans-serif" font-size="13" font-weight="500" fill="#444441" text-anchor="middle" dominant-baseline="central">引擎剩余 2 项</text>
+  <text x="263" y="316" font-family="sans-serif" font-size="12" fill="#5F5E5A" text-anchor="middle" dominant-baseline="central">design/route_error</text>
+</g>
+<g>
+  <rect x="346" y="278" width="140" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="416" y="298" font-family="sans-serif" font-size="13" font-weight="500" fill="#444441" text-anchor="middle" dominant-baseline="central">同步脚本化</text>
+  <text x="416" y="316" font-family="sans-serif" font-size="12" fill="#5F5E5A" text-anchor="middle" dominant-baseline="central">sync_to_platforms</text>
+</g>
+<g>
+  <rect x="499" y="278" width="140" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="569" y="298" font-family="sans-serif" font-size="13" font-weight="500" fill="#444441" text-anchor="middle" dominant-baseline="central">引擎独立仓库</text>
+  <text x="569" y="316" font-family="sans-serif" font-size="12" fill="#5F5E5A" text-anchor="middle" dominant-baseline="central">验证稳定后评估</text>
+</g>
+
+<path d="M340 242 L340 268" fill="none" stroke="#185FA5" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="352" y="258" font-family="sans-serif" font-size="11" fill="#185FA5" dominant-baseline="central">下一步</text>
+
+<text x="40" y="366" font-family="sans-serif" font-size="12" fill="#5F5E5A">下一步 → 装 gh 推远程 · 引擎闭环（design/route_error）· 真实项目验证后评估引擎独立仓</text>
+</svg>
