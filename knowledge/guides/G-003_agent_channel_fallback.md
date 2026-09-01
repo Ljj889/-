@@ -1,0 +1,28 @@
+---
+type: experience
+date: 2026-08-16
+tags: [编排,子Agent,通道故障,出口,CDP,实例占用]
+confidence: high
+---
+
+# G-003 子 Agent 通道失效时的编排出口 + CDP 实例占用探测
+
+## 症状
+- `spawn_agent` / `followup_task` 均成功返回，但子 Agent 收到的任务为空（回复"我没有看到具体请求"或"等待任务"），只拿到环境上下文。
+- 并发槽异常：`agent thread limit reached`，且 interrupted 状态的旧线程仍占槽，需先 interrupt 释放。
+
+## 根因
+- 协作消息投递通道与主线程不同步（本环境实测：长任务书消息丢失/空投递，spawn 与 followup 均复现）。不是任务内容问题。
+
+## 处置（rule 46 编排出口）
+1. **探测先行**：派发后等待 30-60s，观察子 Agent 是否产生文件改动/回复内容；无改动即视为通道失效。
+2. **转直执行**：调度器退出编排，亲自执行，但**保留契约/红线/验收纪律**（EARS 验收、typecheck 硬门槛、rg/stat 静态断言、[需真机] 标注），并在 cost_log/progress.json 记录出口原因。
+3. **任务书落盘**：把任务书写成文件（如 `_orchestration/taskbook-*.md`），若通道恢复，用短消息指路即可复用。
+
+## 复发防护
+- 派发前先验证通道：spawn 一个探针 Agent（要求读文件并回报首行），30s 内无实质回复则不编排。
+- CDP 验收前探测运行实例：检查 `%APPDATA%/<app>/` 目录活跃写入（lockfile/db-wal/tts-cache 时间戳）或 `Get-Process` 匹配 electron；有实例则**禁止启动第二个实例**（DB 共享冲突），验收项标 [需真机] 并交付运行手册。
+- CDP 脚本会写真实会话数据：跑前备份 DB（`Copy-Item` 到临时目录），跑后恢复；或让用户在自己方便时运行。
+
+## 关联
+- 来源实战：番茄钟 UI 舒适度任务（2026-08-16，Wave 1 派发三连失败 → 直执行完成 M1-M7，typecheck/build 全绿，提交 6936cb3）。

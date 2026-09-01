@@ -1,0 +1,27 @@
+---
+title: 实战环境坑合集（Windows 沙箱 + Electron 桌宠）
+version: 1
+owner: 家俊（番茄钟实战）→ 调度器（蒸馏）
+last_verified: 2026-08-12
+review_cycle: 90d
+status: active
+tags: [环境坑, Windows, 沙箱, Electron, 排障]
+source: 六层开发框架实战经验_2026-08-12.md §E（番茄钟 06 复盘 P1-4 实测）
+supersedes: null
+superseded_by: null
+---
+# G-001 实战环境坑合集
+
+**当** 在 Windows 沙箱 / Electron 桌面环境做自动化验证时 → **易犯** 用常规环境假设（GUI 能启动、rm 能删、set 生效、路径能转义）→ **护栏**（都是实测过的坑，遇到即查）：
+
+| 坑 | 现象 | 对策 |
+|---|---|---|
+| Electron GUI 无法沙箱启动 | `require('electron')` 返回字符串（非模块） | **验收必须用户桌面跑**，沙箱内只验逻辑层 |
+| `rm -rf` 被 safe-delete 拦截 | 清空 out/ 失败 | 用全新输出目录验证构建（`POMODORO_OUT_DIR=out-xxx`） |
+| Git Bash `set` 不生效 | 设 CDP 端口失败 | 必须 `export` |
+| 注入页面表达式裸变量 | ReferenceError | `${JSON.stringify()}` 插值，不拼裸变量 |
+| PowerShell 中文+空格路径 | 转义失败 | 用 Bash 绝对路径；**更省事：命令默认在工作区根目录执行，不 `cd` 中文路径**（galagame L3） |
+| **pip/uv 安装与沙箱 safe-delete 冲突（v1.1 · 多宠语音实战 P1）** | 沙箱内装依赖失败 | **依赖安装用非沙箱模式执行**（安装类操作用户确认后放行） |
+
+**配套原则**：环境限制导致的"不可验证"必须诚实标 `[不可测·真机]` 进未验证项清单（rule 42），不粉饰。
+**关联**：R-001 执行边界（沙箱默认拒绝是环境坑的根源）、rule 43 验证两层制（环境限制下 dry-run 更不可信）。
