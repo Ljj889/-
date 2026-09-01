@@ -1,6 +1,6 @@
 ---
 name: six-layer-orchestrator
-description: 六层主 Agent 编排框架在 WorkBuddy 原生多 Agent 环境下的完整实现（v3.13.0，含调度器/架构师角色分离、项目级反馈回路、架构交叉验证、Red Flags 可检查信号、要不要编排出口、三种运行模式、粗拆细拆、引擎/智能分离与 LLM 局限防线、断点恢复 SOP、经验蒸馏与文档读取学习回路、AI 代码验收纪律、效果类主观验收、外部依赖探针、项目生命周期状态机、硬约束优先原则、设计锁定原则、每步方向讨论 Gate、混合审查 AI初审+用户终审、共享质量Rubric与收敛标准、并行隔离、Wave级复盘、计划评审回合制、僵尸能力红线（无调用点=僵尸）、过程文档先行+解耦第一+验收Gate不豁免、对抗式双架构师设计回路（rule 74）、调研配 crawler（rule 75）、合规检查脚本 six_layer_check（rule 64 引擎化）、引擎三件套脚本 checkpoint/cost_log/lifecycle 状态机硬拦截）。当用户说"用六层框架做 X"、"六层编排"、"主Agent编排"、"按六层流程开发 X"、或要求先调研开源项目再拆解并行开发时使用。流程：Phase -2 调研（Swarm+轮询+经验召回，每步先与人讨论方向）→ Phase -1 规格 → Phase -1.5 人机设计锁定（设计文档+代码骨架，计划评审回合制收敛，用户逐项确认）→ Phase 0 初始化（版本控制前置）→ Phase 0.5 知识资产初始化（防文件腐烂+经验召回 Gate）→ L0-L5（调度器只路由不自执行；架构师/程序员/审查员/验收员为 Layer1 平级子 Agent；接口契约→编排→校验→混合审查→流程控制→工程保障）→ Phase 5 合并（用户终审）→ Phase 6 用户反馈回路 → Phase 7 经验蒸馏（写）→ read_knowledge（读）闭环，越用越聪明。
+description: 六层主 Agent 编排框架在 WorkBuddy 原生多 Agent 环境下的完整实现（v3.13.1，含调度器/架构师角色分离、项目级反馈回路、架构交叉验证、Red Flags 可检查信号、要不要编排出口、三种运行模式、粗拆细拆、引擎/智能分离与 LLM 局限防线、断点恢复 SOP、经验蒸馏与文档读取学习回路、AI 代码验收纪律、效果类主观验收、外部依赖探针、项目生命周期状态机、硬约束优先原则、设计锁定原则、每步方向讨论 Gate、混合审查 AI初审+用户终审、共享质量Rubric与收敛标准、并行隔离、Wave级复盘、计划评审回合制、僵尸能力红线（无调用点=僵尸）、过程文档先行+解耦第一+验收Gate不豁免、对抗式双架构师设计回路（rule 74）、调研配 crawler（rule 75）、合规检查脚本 six_layer_check（rule 64 引擎化）、引擎三件套脚本 checkpoint/cost_log/lifecycle 状态机硬拦截、蒸馏资产唯一真相源=独立仓库（rule 76））。当用户说"用六层框架做 X"、"六层编排"、"主Agent编排"、"按六层流程开发 X"、或要求先调研开源项目再拆解并行开发时使用。流程：Phase -2 调研（Swarm+轮询+经验召回，每步先与人讨论方向）→ Phase -1 规格 → Phase -1.5 人机设计锁定（设计文档+代码骨架，计划评审回合制收敛，用户逐项确认）→ Phase 0 初始化（版本控制前置）→ Phase 0.5 知识资产初始化（防文件腐烂+经验召回 Gate）→ L0-L5（调度器只路由不自执行；架构师/程序员/审查员/验收员为 Layer1 平级子 Agent；接口契约→编排→校验→混合审查→流程控制→工程保障）→ Phase 5 合并（用户终审）→ Phase 6 用户反馈回路 → Phase 7 经验蒸馏（写，落盘独立仓库）→ read_knowledge（读）闭环，越用越聪明。
 agent_created: true
 ---
 
@@ -24,7 +24,7 @@ agent_created: true
 - 用户要求"拆 → 并行执行 → 独立审查 → 回退 → 合并"流水线，带成本记账与断点恢复
 - 触发词：六层框架 / 六层编排 / 主Agent编排 / 按六层流程 / 拆模块并行开发
 
-## Workflow（六层流程 v3.13.0 · 全局编号 1-75，删除号 13/15/17/25/26/30 留空不复用，新增从 46 起；有效规则 60 条 · 含 Phase 0.5 知识资产初始化防文件腐烂 · v3.9.1=ChatCut 反馈修订 / v3.9.2=调研经验转化 / v3.9.3=经验蒸馏+文档读取闭环 / v3.9.4=番茄钟实战反馈修订 / v3.9.5=多宠语音实战反馈 / v3.9.6=项目生命周期状态机 / v3.9.7=硬约束优先+纠错先检索 / v3.9.8=设计锁定原则 / v3.9.9=过程文档先行+解耦第一+验收Gate不豁免 / v3.9.10=对抗式双架构师设计回路+调研crawler / v3.10.0=每步方向讨论 Gate / v3.11.0=混合审查+质量Rubric+并行隔离+Wave级复盘+计划评审回合制 / v3.12.0=galagame 僵尸能力红线+monorepo构建顺序+web自动化环境坑+设置入口ADR / v3.13.0=WorkBuddy+CodeBuddy 两版合并统一编号（rule 73-75 并入，G-006 框架合规指南，引擎三件套 + six_layer_check 脚本））
+## Workflow（六层流程 v3.13.1 · 全局编号 1-76，删除号 13/15/17/25/26/30 留空不复用，新增从 46 起；有效规则 61 条 · 含 Phase 0.5 知识资产初始化防文件腐烂 · v3.9.1=ChatCut 反馈修订 / v3.9.2=调研经验转化 / v3.9.3=经验蒸馏+文档读取闭环 / v3.9.4=番茄钟实战反馈修订 / v3.9.5=多宠语音实战反馈 / v3.9.6=项目生命周期状态机 / v3.9.7=硬约束优先+纠错先检索 / v3.9.8=设计锁定原则 / v3.9.9=过程文档先行+解耦第一+验收Gate不豁免 / v3.9.10=对抗式双架构师设计回路+调研crawler / v3.10.0=每步方向讨论 Gate / v3.11.0=混合审查+质量Rubric+并行隔离+Wave级复盘+计划评审回合制 / v3.12.0=galagame 僵尸能力红线+monorepo构建顺序+web自动化环境坑+设置入口ADR / v3.13.0=WorkBuddy+CodeBuddy 两版合并统一编号（rule 73-75 并入，G-006 框架合规指南，引擎三件套 + six_layer_check 脚本）/ v3.13.1=蒸馏资产唯一真相源=独立仓库（rule 76，家俊决策 A））
 
 ### Phase -2：调研学习（可复用借鉴优先，家俊版核心前置）
 
@@ -249,6 +249,12 @@ agent_created: true
     - **项目级 full**（Phase 5 合并交付后、进入下一轮前，必跑）：六步 **Gather（收集 lessons/cost_log/反馈台账/审查 FAIL）→ Rewrite（统一句式「当 A → 易犯 B → 护栏 C」，含可执行护栏）→ Classify（四桶：rules/decisions/framework-skills/guides）→ Gate（人工把关，用户逐条确认采纳/修改/驳回）→ Land（落盘 + rule 54 索引 Gate 追 `_index.md`）→ Feed（更新索引，标已蒸馏防重复）**。蒸馏由 sub-Agent 产出候选，模板见 references/task_templates.md「蒸馏 sub-Agent」。
 59. **read_knowledge 文档读取原语（v3.9.3 新增 · 读侧，闭环另一半）**：签名 `read_knowledge(query, scope="project", status_filter="active", top_k=5) -> list[Asset]`——① 读 `knowledge/_index.md`（canonical entry，**禁止盲搜**）→ ② 按**问题类型/tags** 匹配（不按项目名——NASA 覆辙）→ ③ 过滤 scope（user/project/local）+ status（默认 active）→ ④ 返回资产（frontmatter+摘要）供注入。触发点：Phase -2 调研前（方向种子）/ Phase -1 规格（Rule 红线进 constitution、ADR 进 plan）/ Phase 0.5（召回清单 Gate）/ 执行中 just-in-time 召回（子 Agent 遇未知情形按需调）/ Phase 7 写前（查重防重复造）。**护栏：先读索引；只读 active；过期（last_verified 超 review_cycle）标 stale 依赖前复核；引用标注来源路径不静默吸收；精度优先（precision > recall）防上下文膨胀（呼应 rule 40 <2,000 行）；召回资产是建议/约束不替代本次判断。**
 60. **学习回路闭环 + L2 证据（v3.9.3 新增）**：Phase 7 写 → `knowledge/` 资产库存 + `_index.md` → 下一项目 read_knowledge 读 → 注入使用 → **`progress.json` 记"本次召回清单"（资产路径+命中 tags+注入位置）= L2 学习证据（教训真改变了流程）+ 防腐烂审计依据**。防腐烂治理：frontmatter 必带 `version/owner/last_verified/review_cycle/status/tags/source`；`deprecated` 不自动注入；Superseded 旧版只读不覆盖；**已嵌入框架规则（SKILL.md rule）的资产可从库移除（空库=吸收彻底）**；每个新项目启动 = 天然复核点。
+76. **蒸馏资产唯一真相源 = 独立仓库（v3.13.1 新增 · 家俊 2026-09-02 决策 A）**：Phase 7 产出的框架级资产（`knowledge/` 四桶新文件 + `_index.md` 更新 + SKILL.md 规则修订）**必须直接落盘到独立仓库** `D:\Ai\一些ai项目\项目2.0\six-layer-orchestrator\`——**平台 skills 目录只是运行时副本，不是真相源**（WorkBuddy/CodeBuddy/Codex 三处 = 分发目标，随仓库同步覆盖）。落盘四步清单：
+    - **① Land**：资产写入仓库 `knowledge/`（或修订仓库 `SKILL.md`），追 `_index.md`（rule 54 Gate）；
+    - **② Commit**：`git add -A` + `git commit -m "knowledge: <一句话摘要>"`（PowerShell 下执行，凭据 GCM 已配）；
+    - **③ Push**：`git push origin master`（远程 `github.com/Ljj889`；PowerShell 下 push 稳定，Git Bash 偶发 SIGTERM 假象）；
+    - **④ Sync**：`bash sync_to_platforms.sh` 分发三处 + `--check` 校验（仓库 → WorkBuddy/CodeBuddy/Codex）。
+    - **违反红线**：只更新平台 skills 目录、不落仓库 = 资产视为未验证（rule 54 逻辑延伸）；**禁止在平台目录直接改 skill**——下次 sync 会被仓库覆盖。遇到"当前会话加载的是平台副本"时，改仓库路径后同步即可。
 61. **效果类需求主观验收（v3.9.5 新增 · 多宠语音对话实战 D1/D4/D5）**：任务含**主观体验**（语音情绪"像不像"、画面"顺不顺眼"、交互"自不自然"）时——**dry-run/单测绿 ≠ 效果对**（AI 伴侣语音实战：111 测试全绿但情绪"听不出"，到 W4 人耳才暴露）。要求：
     - **Wave 前置主观验收 Gate**：效果类任务在 Wave 划分时就设"人耳/MOS 验收点"（W1 就设，禁止拖到最后 Wave 才人耳验收）；
     - **分层验证定位根因**：效果类调试用**维度交叉**（如音色×资源×提示词×强度 4 维），一次只动一维，锁定根因；
