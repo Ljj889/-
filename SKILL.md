@@ -1,6 +1,6 @@
 ---
 name: six-layer-orchestrator
-description: 六层主 Agent 编排框架在 WorkBuddy 原生多 Agent 环境下的完整实现（v3.13.1，含调度器/架构师角色分离、项目级反馈回路、架构交叉验证、Red Flags 可检查信号、要不要编排出口、三种运行模式、粗拆细拆、引擎/智能分离与 LLM 局限防线、断点恢复 SOP、经验蒸馏与文档读取学习回路、AI 代码验收纪律、效果类主观验收、外部依赖探针、项目生命周期状态机、硬约束优先原则、设计锁定原则、每步方向讨论 Gate、混合审查 AI初审+用户终审、共享质量Rubric与收敛标准、并行隔离、Wave级复盘、计划评审回合制、僵尸能力红线（无调用点=僵尸）、过程文档先行+解耦第一+验收Gate不豁免、对抗式双架构师设计回路（rule 74）、调研配 crawler（rule 75）、合规检查脚本 six_layer_check（rule 64 引擎化）、引擎三件套脚本 checkpoint/cost_log/lifecycle 状态机硬拦截、蒸馏资产唯一真相源=独立仓库（rule 76））。当用户说"用六层框架做 X"、"六层编排"、"主Agent编排"、"按六层流程开发 X"、或要求先调研开源项目再拆解并行开发时使用。流程：Phase -2 调研（Swarm+轮询+经验召回，每步先与人讨论方向）→ Phase -1 规格 → Phase -1.5 人机设计锁定（设计文档+代码骨架，计划评审回合制收敛，用户逐项确认）→ Phase 0 初始化（版本控制前置）→ Phase 0.5 知识资产初始化（防文件腐烂+经验召回 Gate）→ L0-L5（调度器只路由不自执行；架构师/程序员/审查员/验收员为 Layer1 平级子 Agent；接口契约→编排→校验→混合审查→流程控制→工程保障）→ Phase 5 合并（用户终审）→ Phase 6 用户反馈回路 → Phase 7 经验蒸馏（写，落盘独立仓库）→ read_knowledge（读）闭环，越用越聪明。
+description: 六层主 Agent 编排框架在 WorkBuddy 原生多 Agent 环境下的完整实现（v3.14.0，含调度器/架构师角色分离、项目级反馈回路、架构交叉验证、Red Flags 可检查信号、要不要编排出口、三种运行模式、粗拆细拆、引擎/智能分离与 LLM 局限防线、断点恢复 SOP、经验蒸馏与文档读取学习回路、AI 代码验收纪律、效果类主观验收、外部依赖探针、项目生命周期状态机、硬约束优先原则、设计锁定原则、每步方向讨论 Gate、混合审查 AI初审+用户终审、共享质量Rubric与收敛标准、并行隔离、Wave级复盘、计划评审回合制、僵尸能力红线（无调用点=僵尸）、过程文档先行+解耦第一+验收Gate不豁免、对抗式双架构师设计回路（rule 74）、调研配 crawler（rule 75）、合规检查脚本 six_layer_check（rule 64 引擎化）、引擎三件套脚本 checkpoint/cost_log/lifecycle 状态机硬拦截、蒸馏资产唯一真相源=独立仓库（rule 76）、子代理能力探测与直做模式（rule 77）、引擎三件套进Wave Gate（rule 78）、渲染端静默失效检查Gate（rule 79）、取证优先与现象排查卡（rule 80）、长排错会话检查点（rule 81））。当用户说"用六层框架做 X"、"六层编排"、"主Agent编排"、"按六层流程开发 X"、或要求先调研开源项目再拆解并行开发时使用。流程：Phase -2 调研（Swarm+轮询+经验召回，每步先与人讨论方向）→ Phase -1 规格 → Phase -1.5 人机设计锁定（设计文档+代码骨架，计划评审回合制收敛，用户逐项确认）→ Phase 0 初始化（版本控制前置）→ Phase 0.5 知识资产初始化（防文件腐烂+经验召回 Gate）→ L0-L5（调度器只路由不自执行；架构师/程序员/审查员/验收员为 Layer1 平级子 Agent；接口契约→编排→校验→混合审查→流程控制→工程保障）→ Phase 5 合并（用户终审）→ Phase 6 用户反馈回路 → Phase 7 经验蒸馏（写，落盘独立仓库）→ read_knowledge（读）闭环，越用越聪明。
 agent_created: true
 ---
 
@@ -24,7 +24,7 @@ agent_created: true
 - 用户要求"拆 → 并行执行 → 独立审查 → 回退 → 合并"流水线，带成本记账与断点恢复
 - 触发词：六层框架 / 六层编排 / 主Agent编排 / 按六层流程 / 拆模块并行开发
 
-## Workflow（六层流程 v3.13.1 · 全局编号 1-76，删除号 13/15/17/25/26/30 留空不复用，新增从 46 起；有效规则 61 条 · 含 Phase 0.5 知识资产初始化防文件腐烂 · v3.9.1=ChatCut 反馈修订 / v3.9.2=调研经验转化 / v3.9.3=经验蒸馏+文档读取闭环 / v3.9.4=番茄钟实战反馈修订 / v3.9.5=多宠语音实战反馈 / v3.9.6=项目生命周期状态机 / v3.9.7=硬约束优先+纠错先检索 / v3.9.8=设计锁定原则 / v3.9.9=过程文档先行+解耦第一+验收Gate不豁免 / v3.9.10=对抗式双架构师设计回路+调研crawler / v3.10.0=每步方向讨论 Gate / v3.11.0=混合审查+质量Rubric+并行隔离+Wave级复盘+计划评审回合制 / v3.12.0=galagame 僵尸能力红线+monorepo构建顺序+web自动化环境坑+设置入口ADR / v3.13.0=WorkBuddy+CodeBuddy 两版合并统一编号（rule 73-75 并入，G-006 框架合规指南，引擎三件套 + six_layer_check 脚本）/ v3.13.1=蒸馏资产唯一真相源=独立仓库（rule 76，家俊决策 A））
+## Workflow（六层流程 v3.14.0 · 全局编号 1-81，删除号 13/15/17/25/26/30 留空不复用，新增从 46 起；有效规则 66 条 · 含 Phase 0.5 知识资产初始化防文件腐烂 · v3.9.1=ChatCut 反馈修订 / v3.9.2=调研经验转化 / v3.9.3=经验蒸馏+文档读取闭环 / v3.9.4=番茄钟实战反馈修订 / v3.9.5=多宠语音实战反馈 / v3.9.6=项目生命周期状态机 / v3.9.7=硬约束优先+纠错先检索 / v3.9.8=设计锁定原则 / v3.9.9=过程文档先行+解耦第一+验收Gate不豁免 / v3.9.10=对抗式双架构师设计回路+调研crawler / v3.10.0=每步方向讨论 Gate / v3.11.0=混合审查+质量Rubric+并行隔离+Wave级复盘+计划评审回合制 / v3.12.0=galagame 僵尸能力红线+monorepo构建顺序+web自动化环境坑+设置入口ADR / v3.13.0=WorkBuddy+CodeBuddy 两版合并统一编号（rule 73-75 并入，G-006 框架合规指南，引擎三件套 + six_layer_check 脚本）/ v3.13.1=蒸馏资产唯一真相源=独立仓库（rule 76，家俊决策 A）/ v3.14.0=实战复盘五反馈引擎化（rule 77 子代理能力探测与直做模式 / rule 78 引擎三件套进Wave Gate / rule 79 渲染端静默失效检查Gate / rule 80 取证优先与现象排查卡 / rule 81 长排错会话检查点））
 
 ### Phase -2：调研学习（可复用借鉴优先，家俊版核心前置）
 
@@ -82,6 +82,8 @@ agent_created: true
 11.4. **强制落盘 + 索引更新**：任务结束前，按模板把踩坑/经验/思想落盘——文件名 `日期_主题.md`，frontmatter 含 `type / date / tags / confidence`（experience 加 symptom/root_cause/fix/recurrence_guard；insight 加 from_experiences）。落盘后立即在 `_index.md` 追加一行（<30 秒）。三类各一平层，禁止再嵌套子文件夹。
 
 11.5. **经验召回 Gate（v3.9.3 新增 · 学习回路读侧）**：初始化时调 `read_knowledge(本次项目问题域/技术栈)`（rule 59）检索框架级 `knowledge/_index.md`，产出"本次项目相关经验召回清单"（资产路径 + 命中 tags + 注入位置：Rule→constitution / ADR→plan / Skill→按名调用），写入 `progress.json`。**Gate：未 read_knowledge 检索就标"已初始化 ✅" = 违规（Red Flag）**——不查索引不得声称"无相关先验经验"（NASA LLIS 覆辙：写了没人读）。召回的 Rule 红线注入 constitution 常驻，ADR 注入 plan 作 rationale，均标注来源路径。**实现者可见性强化（v3.9.5 新增 · 多宠语音实战 P10）**：召回清单必须**传递给实际实现者本人**（写进任务书/派发 prompt），不是调度器自己看过就算——实战教训：协议经验已入库但实现者未逐条对照，联调反复断连。
+
+11.6. **子代理能力探测（v3.14.0 新增 · rule 77，2026-09-05 家俊 Electron 实战硬伤1）**：L0 角色定义后、首次派发前，Phase 0 **固定**执行一次「30 秒探针」——派一个最小子 Agent 任务（读指定文件回报首行，任务卡见 references/task_templates.md「探针任务卡」，超时 30s），以探针结果初始化执行模式：探针正常返回报告 → `progress.json` 记 `mode:"orchestrated"`，按六层派发纪律走；探针超时/返回工具轨迹而非报告/空结果 → 换实例重试 1 次；连续失败 → **显式切换直做模式**（`progress.json` 记 `mode:"direct"` + `cost_log.md` 留痕原因），按 rule 77 执行——**禁止在未探测/未声明的情况下在"派发纪律"与"调度器直做"之间反复横跳打擦边球**（Red Flag）。
 
 **调度器铁律扩展**：路由子 Agent 任务时，若子 Agent 产出可复用知识（踩坑/经验/思想）却未落盘 → 视为该子任务"**未验证完成**"，对接第 42 条未验证项清单，禁止标 `已验证 ✅`。
 
@@ -192,7 +194,7 @@ agent_created: true
     - **派发前写"预期产物清单"（v3.9.1 新增，ChatCut 断点重接实战教训）**：并行派发前，在 `progress.json` 记录——`Wave N 派发: [模块id]→[目标文件列表]，状态 pending`。重接/异常核验时，`git status` + `stat` 对照清单**一次定位**哪些模块"已执行未回报"、哪些"未执行"，不用逐个文件猜。预期产物清单是 rule 37 磁盘核验与断点恢复 SOP 的前提。
 40. **上下文管理**（防"长对话记忆爆炸"）：单任务上下文目标 **< 2,000 行；> 5,000 行必须裁剪**（拆子任务或写 scratchpad）。主上下文只放当前必要信息；任务细节、模块清单、文件 map 写进 scratchpad，按需读取；子 Agent 任务说明必须自包含；教训文件 lessons.md 长期保留，每次重开先读（环境坑如 safe-delete 吞输出、tmp 目录删不掉、模型下载被拦——全部记入 lessons.md，重开先读）。
     - **压缩前落盘钩子（Pre-Compaction Flush，v3.9.2 新增 · 调研经验 M1 转化）**：任何上下文压缩/状态清理**之前**，必须先把将被丢弃的内容落盘（scratchpad/progress.json/checkpoint）——**压缩即失忆**是长任务重启后丢早期消息的头号原因。顺序固定：先落盘 → 再压缩 → 压缩后校验落盘成功才继续。平台引擎层（编排 B）将实现为压缩函数的强制前置钩子。
-41. **自测与验证归因（chatcut 实战教训）**：派发前自检任务说明与 schema；确定性的事用代码不用 LLM。**验证失败时必须先以最小样例复现，并写明归因（脚本错／代码错）**；未写归因就回退代码 = 违规。验证脚本本身也会出 bug——先自检"是验证脚本错还是被测代码错"再判，禁止把脚本 bug 误判为代码失败。
+41. **自测与验证归因（chatcut 实战教训）**：派发前自检任务说明与 schema；确定性的事用代码不用 LLM。**验证失败时必须先以最小样例复现，并写明归因（脚本错／代码错）**；未写归因就回退代码 = 违规。验证脚本本身也会出 bug——先自检"是验证脚本错还是被测代码错"再判，禁止把脚本 bug 误判为代码失败。（**互链 v3.14.0**：用户报**现象类问题**的第一响应见 rule 80 取证优先——先取证再进入本条归因）
 42. **验证证据纪律 + 未验证项清单**：任何"已验证 ✅"的能力声明都必须有运行日志佐证；无证据的声明一律视为未验证。**交付报告必须显式列出"未验证项"清单及原因**（环境限制 / 成本 / 时间）——如"转录链路因沙箱拦截模型下载未经真实验证"，禁止让用户以为"全绿 = 全通"。
 43. **验证两层制（chatcut dry-run 实战教训，最危险的一层）**：明确区分两种验证——
     - **流程验证（dry-run）**：断言"步骤存在、命令非空、逻辑分支走通"——便宜、快、可天天跑；
@@ -315,15 +317,48 @@ agent_created: true
 
 75. **调研配 crawler（v3.9.10 新增 · v3.13.0 两版合并纳入）**：Phase -2 调研 Agent 默认配 `web-scraper`（理解型）/ `hard-site-crawler-playbook`+`agent-browser-core`（硬站点/交互）/ 业务专用 `furniture-competitor-crawler` 不属架构师路径。调研 Agent 任务说明的"上网工具配置"字段按此填写（rule 74 对抗式回路中的 A/B 架构师调研同样适用）。
 
+77. **子代理能力探测与直做模式（v3.14.0 新增 · 2026-09-05 家俊 Electron 实战硬伤1）**：框架默认假设子代理可用（rule 12 调度器不自执行 / rule 19 必须先架构师派发），但**没教"子代理不可用时怎么合规降级"**——实战中唯一可用子代理只读且连续返回工具轨迹，调度器只能靠 rule 49 机械豁免 + rule 46 直做出口 + rule 34 熔断拼凑合规路径，每步打擦边球。补上显式降级协议（探针步骤见 11.6）：
+    - **显式状态，不是擦边球**：探测失败后 `progress.json` 记 `mode:"direct"` + `cost_log.md` 记一行降级原因（如"探针 2 次返回工具轨迹，无可用执行型子代理"）——直做模式是**声明出来的运行模式**，不是绕过纪律的借口；
+    - **放宽的是派发形式，不是验收纪律**：direct 模式下 rule 12（调度器不写代码）/ rule 19（先架构师派发）的**硬性要求放宽**——调度器可自拆自写；但**验收纪律全部保留**：契约先行（interfaces.md 照写，自拆时兼做架构师职责）、磁盘 stat 核对（rule 29/52）、两层验证（rule 43）、未验证项清单（rule 42）、收尾双核对（rule 51）一项不少。**每完成一个模块仍过一遍自审清单（调度器切换"审查员帽子"逐条对照契约核查，并在 cost_log 记自审结果）**——"没人可派"不能变成"没人审"；
+    - **与 rule 46 的区别**：rule 46 是"任务太小不值得编排"的**事前出口**（走 cost_log 记理由，不进六层）；rule 77 是"想编排但子代理不可用"的**事中降级**（探测→声明→降级，保留六层的验收骨架）。两者都要求留痕，但触发点与含义不同；
+    - **可重探**：项目中途子代理通道恢复（如平台升级）→ 可重跑探针，`mode` 改回 `orchestrated` 并留痕；连续熔断（rule 34）/通道异常（rule 37）时也允许临时重探确认，不必等项目结束；
+    - **Red Flag 衔接**：`mode:"direct"` 声明在案后，Red Flags「调度器越权」「架构师缺位」两条**豁免触发**（已在条目内标注）；**未探测/未声明就静默绕过派发纪律 = 新增 Red Flag**。
+
+78. **引擎三件套进 Wave Gate（v3.14.0 新增 · 次要问题1：脚本藏在 Resources 没流程 Gate 强制，全程手写 markdown）**：checkpoint.py / cost_log.py / lifecycle.py 已引擎化（v3.9.13）但**没有被写进任何流程 Gate**——按 rule 64 本意，脚本必须成为 Gate 动作本身，不是可选工具。固化每 Wave 的**脚本 Gate 动作**（项目根 = 项目目录参数）：
+    - **派发时**：`python scripts/cost_log.py <项目根> add <模块id> <档位> <预估成本> <结果> <异常类型>` ——每次派发一行（rule 38/53 的引擎化落地，替代手写 markdown 行）；
+    - **Wave 开工**：`python scripts/checkpoint.py <项目根> expect <wave名> <模块id> <目标文件...>` ——写预期产物清单（rule 39 前提）；
+    - **模块完成**：`python scripts/checkpoint.py <项目根> mark <模块id> delivered` → 测试后 `verify <模块id> <文件...>`（磁盘 stat 核验，rule 52 引擎化）；
+    - **Wave 收尾**：`python scripts/checkpoint.py <项目根> status`（三态总览）+ `python scripts/cost_log.py <项目根> summary`（账本合规检查）+ 状态流转点 `python scripts/lifecycle.py <项目根> transit <目标状态> --evidence-file <路径>`（rule 63 证据门）；
+    - **Rule 70 Wave 复盘卡照常手写**（复盘是判断类，不引擎化），但复盘卡**引用 cost_log summary 的输出**作为输入；
+    - **红线**：Wave 收尾时 cost_log 无对应派发记录 / progress.json 无 mark 记录 = 该 Wave **未验证完成**（新增 Red Flag）——"写了 markdown 但没跑脚本"不算 Gate 通过（rule 64：能脚本化的绝不靠自觉重抄一遍）。
+
+79. **渲染端静默失效检查 Gate（v3.14.0 新增 · 2026-09-05 家俊 Electron 实战硬伤2：Tailwind content 漏扫三轮才定位）**：**typecheck 绿 + build 绿 + 运行不崩 ≠ 真的没坏**——Electron/前端项目存在五处"三层全绿但功能静默失效"的配置点（tsconfig include / vite input / tailwind content / preload d.ts / IPC 通道一致性），每一个都曾实撞。引擎化为脚本子命令：
+    - **触发条件（条件 Gate）**：本轮新增/修改了**渲染端窗口、页面、overlay 类模块** → 该模块合并前必跑 `python scripts/six_layer_check.py render-silent-fail <项目根> --strict`（exit 1 = 有静默失效隐患，禁止合并）；
+    - **五项检查**：① tsconfig include 是否覆盖全部源码目录（漏了 = typecheck 对新目录假绿，参照 R-008）② vite 多入口 input 是否登记全部 html（漏了 = 新窗口 404 白屏）③ tailwind content 是否覆盖源码目录（漏了 = 样式静默丢失）④ renderer 引用的 window.* 是否都有 d.ts 声明（漏了 = preload 类型假绿）⑤ preload 调用的 IPC 通道主进程是否都注册（漏了 = invoke 静默无响应）；
+    - **SKIP 语义**：配置文件不存在自动 SKIP（防误报），SKIP 项标"需人工复核"；FAIL 列表给出具体目录/通道名（可操作的修复线索，不是笼统报错）；
+    - **现象排查联动**：用户报"窗口看不到/样式全丢/IPC 无响应"时，先跑本子命令再按 references/symptom_triage.md 排查卡处置（rule 80 取证优先的第一动作之一）。
+
+80. **取证优先与现象排查卡（v3.14.0 新增 · 硬伤3：真机才能暴露的问题取证不标准，多轮往返）**：用户报**现象类问题**（UI 不显示/样式丢失/交互无响应/"看起来不对"）时——**第一动作是取证，不是改代码**。实战教训："看不到"问题第一轮靠猜、第二轮才加日志、第三轮才做对照实验，用户的"先看日志报错，确定究竟什么问题再解决"就是纠正。固化：
+    - **取证优先（硬规则）**：现象类问题禁止未取证就改代码。第一动作三件：① **加最小诊断日志**（在嫌疑链路上输出关键状态）② **向用户要标准数据**（该现象的标准数据集是固定的，如窗口问题=visible/pos/size/z-order/render-mounted 五项，见排查卡）③ **设计对照实验**（一次只改一个变量，如隐藏其他窗口排除 z-order 干扰）；
+    - **现象排查卡（references/symptom_triage.md）**：把高频现象的标准取数步骤固化为卡（当前三张：窗口不可见 / 样式全丢但 build 绿 / IPC 无响应），每卡含"第一步取什么数据 → 判定树 → 高频根因按命中率排序 → 修复后回归验证"；
+    - **与 rule 41 关系**：rule 41 管"验证失败的归因"（最小样例复现），本条管"用户报现象的第一响应"——互链：现象类问题先走本条取证，取证后进入 rule 41 归因或 rule 64 纠错先检索；
+    - **Red Flag**：用户报现象类问题后，无诊断日志/无标准数据采集/无对照实验记录就直接改代码 → 违反本条，FAIL。
+
+81. **长排错会话检查点（v3.14.0 新增 · 次要问题2：排错会话远超 2000 行，早期结论只能靠 lessons 兜底）**：排错（bug-hunting）会话的上下文膨胀速度远超普通开发——每个假设-验证循环都会产生大量中间输出，rule 40 的 2,000 行目标会被三轮排错击穿，且"压缩前落盘"钩子没和排错流程绑定，压缩即丢早期结论。补上排错专用检查点：
+    - **假设证伪即落盘**：排错是"假设 → 验证 → 证伪/证实"循环——**每证伪一个假设，立即在 lessons.md（或 scratchpad）追加一行**：`[排错检查点] 已排除: <假设+证据> | 当前最大嫌疑: <X> | 下一步: <动作>`——把"早期结论只能靠记忆"变成"结论固化在磁盘"（复用 Pre-Compaction Flush，rule 40）；
+    - **3 轮强制小结**：排错超过 **3 轮**（3 个假设被证伪）仍未定位根因 → 强制暂停，写一份**断点小结**（已排除清单 + 当前嫌疑排序 + 已试过的修复 + 下一步计划），再继续——禁止"马上就找到了"心态带病深挖（与 rule 57 重复熔断同构：排错循环也是循环）；
+    - **排错检查点进 Bug-Fix 模式**：rule 46 Bug-Fix 轻量模式的"先找根因"步骤强制执行本条（详见 references/bug_fix_mode.md「长排错会话检查点」节）；
+    - **蒸馏衔接**：根因定位后，"三轮才找到的根因"是 Phase 7 蒸馏的高价值候选（实战案例：Tailwind content 漏扫 → R-008/R-010 + rule 79 脚本化）。
+
 ## Red Flags 可检查信号（v3.7 新增观测器）
 
 以下信号可被外部审计，出现即异常；调度器与审查员据此判分（收纳原第 13 条 symptom）：
 
-- **调度器越权**：发现自己正在写代码 / 拆模块 / 审查 / 改数据 / 写验证脚本 → 立刻停下并路由给对应子 Agent（原第 13 条降级为 symptom）。（机械契约对齐豁免除外：第 49 条规定的 <10 行机械改动 / 模板适配 / 文档落盘类环境修复不视为越权）
+- **调度器越权**：发现自己正在写代码 / 拆模块 / 审查 / 改数据 / 写验证脚本 → 立刻停下并路由给对应子 Agent（原第 13 条降级为 symptom）。（机械契约对齐豁免除外：第 49 条规定的 <10 行机械改动 / 模板适配 / 文档落盘类环境修复不视为越权）（**直做模式豁免**：rule 77 探测失败且 `mode:"direct"` 已声明留痕时，调度器自执行不触发本条——但验收纪律照旧）
 - **验证声明超实测**：交付报告中"已验证 ✅"条数 > `cost_log.md` 中实测记录数 → 静默粉饰，FAIL。
 - **派发数 ≠ 清单数**：本轮实际子 Agent 调用数 ≠ 派发前列出的"应派模块清单"条数 → 假并行，FAIL。
 - **无归因的验证失败回退**：验证失败后未以最小样例复现、未写明"脚本错／代码错"就回退代码 → 违规。
-- **架构师缺位**：`cost_log.md` 无架构师派发记录却出现程序员派发 → 违反第 19 条检查，FAIL。
+- **架构师缺位**：`cost_log.md` 无架构师派发记录却出现程序员派发 → 违反第 19 条检查，FAIL。（**直做模式豁免**：`mode:"direct"` 下无架构师派发属预期——架构师职责由调度器兼做，自拆留痕即可）
 - **未读索引即声称无先验经验（v3.9.3 新增）**：Phase 0.5 初始化未 read_knowledge 检索 `knowledge/_index.md` 就标"已初始化 ✅" → 违反 rule 59/11.5，FAIL（防 NASA 覆辙：不查索引不得声称无先验经验）。
 - **蒸馏资产未过人工 Gate / 未追索引（v3.9.3 新增）**：Phase 7 资产落盘未经人工 Gate 确认，或落盘后未更新 `_index.md`（rule 54 Gate）→ 该资产视为未验证，FAIL。
 - **验收未过却调度器直改（v3.9.6 新增）**：项目处于 DELIVERED/REOPENED（用户未确认完成）时，调度器对反馈修改请求直接动手（写代码/改文件/调参数）而非路由子 Agent → 违反 rule 63，FAIL（"验收没过 = 项目没完成 = 框架模式持续生效"）。
@@ -335,6 +370,11 @@ agent_created: true
 - **Wave 复盘失效（v3.11.0 新增）**：连续 2 个 Wave 同一失败模式（rule 70 红线）但 cost_log 无复盘记录/未调整派发参数 → 未验证项清单标注"复盘失效"。
 - **无框架痕迹却声称按六层开发（v3.9.12 新增 · galagame 教训）**：项目无 lessons.md/cost_log.md/progress.json/PHASE 标记等任何框架痕迹，交付却声称"按六层框架开发"→ 视为未验证，FAIL（软约束失效，配套 `scripts/six_layer_check.py` 一键核查 + G-006 指南）。
 - **非平凡设计外拉双架构师回路（v3.9.10 新增）**：对 trivial 设计/小改动仍拉 rule 74 双架构师 + 挑刺回路（未走 rule 46 编排出口 / rule 20 轻量档）→ 违反成本护栏与 Anthropic 反过度分工原则，标注"待加固"（不判 FAIL 但列未验证项）。
+- **未探测/未声明直做就静默绕过派发纪律（v3.14.0 新增 · rule 77）**：子代理不可用时既没跑 11.6 探针、也没在 progress.json/cost_log 声明 `mode:"direct"`，调度器就直接动手写代码/拆模块 → 打擦边球，FAIL（直做必须显式声明，不许横跳）。
+- **Wave 收尾账本/断点无记录（v3.14.0 新增 · rule 78）**：Wave 结束时 cost_log.md 无该 Wave 派发记录、或 progress.json 无 checkpoint mark 记录（只写了手写 markdown）→ 该 Wave 未验证完成，FAIL（三件套是 Gate 动作，不是可选工具）。
+- **渲染端静默失效 Gate 被跳过（v3.14.0 新增 · rule 79）**：本轮新增/修改渲染端窗口/页面类模块，合并前未跑 `six_layer_check.py render-silent-fail`（或跑了 FAIL 未修就合并）→ FAIL（typecheck/build 绿不算数）。
+- **现象类问题未取证就改代码（v3.14.0 新增 · rule 80）**：用户报 UI/现象类问题后，无诊断日志、无标准数据采集、无对照实验记录就直接改代码 → FAIL（第一动作是取证，参照 references/symptom_triage.md）。
+- **长排错无检查点（v3.14.0 新增 · rule 81）**：排错超过 3 轮未写断点小结（已排除清单/当前嫌疑/下一步），或假设证伪后未落盘 lessons → 违反 rule 81，该轮排错视为未留痕（上下文压缩后无法恢复现场）。
 
 ## Resources
 
@@ -363,7 +403,10 @@ agent_created: true
 LLM 已知局限与系统防线自查表（v3.9 新增）：12 条局限（7 已撞 + 5 未撞）× 防线 × SKILL.md 落点 × 覆盖状态 + module_type 显式字段设计（编排 B 实现）。
 
 ### references/bug_fix_mode.md
-Bug-Fix 轻量模式（v3.9.2 新增）：报错修复专用流程——先日志/复现找根因（强制）→ 按根因范围选路（直做/低成本编排/问人）→ 改完必验证 + 交付说明根因。含可粘贴到任意开发窗口的决策卡。
+Bug-Fix 轻量模式（v3.9.2 新增）：报错修复专用流程——先日志/复现找根因（强制）→ 按根因范围选路（直做/低成本编排/问人）→ 改完必验证 + 交付说明根因。含可粘贴到任意开发窗口的决策卡。v3.14.0 增补「长排错会话检查点」节（rule 81）。
+
+### references/symptom_triage.md
+现象排查卡（v3.14.0 新增 · rule 80）：高频现象的标准取证流程卡——窗口不可见（visible/pos/size/z-order/render-mounted 五项数据 + 对照实验）/ 样式全丢但 build 绿（tailwind content→PostCSS→import 链）/ IPC 无响应（handler 注册/contextBridge 暴露/通道拼写）。每卡含取数步骤 + 判定树 + 高频根因按命中率排序，与 `six_layer_check.py render-silent-fail` 联动。
 
 ### references/knowledge_loop.md
 学习回路原语详设（v3.9.3 新增）：Phase 7 经验蒸馏六步 + 资产四桶 + frontmatter 模板 + 人工 Gate 话术 + read_knowledge 原语（签名/触发点/消费方式/护栏）+ 闭环与 L2 证据（progress.json 召回记录）。rule 58/59/60 的展开文档。
@@ -375,10 +418,10 @@ Bug-Fix 轻量模式（v3.9.2 新增）：报错修复专用流程——先日�
 对抗式双架构师设计回路 playbook（v3.9.10 新增 · rule 74）：双架构师 + 挑刺 Agent 的角色定义、Round 1/2 回合协议、proposal_A/B / review / critique / consensus 四套模板、共识门槛与 ≤3 轮熔断升级人流程，非平凡设计阶段默认启用。
 
 ### knowledge/（经验资产库）
-框架级共享经验库（v3.9.3 新增，跨项目）：四桶 `rules/`（红线，注入 constitution）· `decisions/`（ADR，注入 plan）· `framework-skills/`（可调用 Skill）· `guides/`（可选说明）+ `_index.md`（canonical 索引，read_knowledge 唯一入口）。入口检索原语见 `scripts/read_knowledge.py`。当前指南：G-001 环境坑 · G-002 效果类验收 · G-003 子Agent通道 · G-004 monorepo构建 · G-005 web自动化 · G-006 框架合规检查（galagame 教训，配套 six_layer_check.py）。
+框架级共享经验库（v3.9.3 新增，跨项目）：四桶 `rules/`（红线，注入 constitution）· `decisions/`（ADR，注入 plan）· `framework-skills/`（可调用 Skill）· `guides/`（可选说明）+ `_index.md`（canonical 索引，read_knowledge 唯一入口）。入口检索原语见 `scripts/read_knowledge.py`。当前：rules R-001~R-009（2026-09 新增 R-007 僵尸能力 / R-008 类型门禁假绿 / R-009 可移除性，均属"看起来已验证其实没有"家族）· framework-skills experience-distiller + ts-smoke-harness（无测试框架冒烟）· guides G-001~G-006（环境坑/效果验收/子Agent通道/monorepo/web自动化/框架合规）。
 
 ### scripts/six_layer_check.py
-框架合规检查脚本（v3.9.12 新增 · galagame 教训）：`python scripts/six_layer_check.py <项目目录> [--mode init|deliver|auto] [--strict] [--json]` — 一键核查框架痕迹（git 基线/Phase 0.5 知识资产/SDD 四件套/lessons/cost_log/progress/PHASE 标记/收尾文档），缺失项列清单并提示补哪个 Phase。开工前 `--mode init`、收尾 `--mode deliver`；软约束失效的硬检查解药（rule 64 引擎化落地，详见 G-006）。
+框架合规检查脚本（v3.9.12 新增 · galagame 教训）：`python scripts/six_layer_check.py <项目目录> [--mode init|deliver|auto] [--strict] [--json]` — 一键核查框架痕迹（git 基线/Phase 0.5 知识资产/SDD 四件套/lessons/cost_log/progress/PHASE 标记/收尾文档），缺失项列清单并提示补哪个 Phase。开工前 `--mode init`、收尾 `--mode deliver`；软约束失效的硬检查解药（rule 64 引擎化落地，详见 G-006）。**v3.14.0 新增子命令** `render-silent-fail <项目目录>`（rule 79）：渲染端静默失效五项检查（tsconfig include / vite input / tailwind content / preload d.ts / IPC 通道一致性），配置存在才查、不存在 SKIP，`--strict` 时 FAIL 即 exit 1——新增渲染端窗口/页面模块的合并前置 Gate。
 
 ### scripts/validate_output.py
 L3 输出校验脚本：`python scripts/validate_output.py <output.json> <schema.json>`，exit 0=通过 / 1=失败。
@@ -387,4 +430,4 @@ L3 输出校验脚本：`python scripts/validate_output.py <output.json> <schema
 引擎三件套（v3.9.13 新增 · rule 38/39/63 引擎化）：`checkpoint.py` 断点三态（已交付/已验证/未验证）+ 派发前预期产物清单 + 磁盘核验（stat）；`cost_log.py` 成本账本定长行 `[时间]|[对象]|[档位]|[成本]|[结果]|[异常类型]` + 汇总/合规检查；`lifecycle.py` 项目五态状态机（INIT→EXECUTING→DELIVERED→REOPENED/ACCEPTED），非法转移拒绝 + Gate 证据门（DELIVERED 需未验证项清单、ACCEPTED 需用户确认记录）。三件套共用 `progress.json`（lifecycle 字段）。**新项目统一用新格式；旧项目（编排系统 MVP 的 cost_report.json 等）归档不迁移（2026-09-01 决策 A）。引擎先随 skill 版本演进，验证稳定后抽独立仓库（家俊 2026-09-01 决策）。**
 
 ### 引擎化落地现状（v3.13.0 更新 · 实测清单）
-SKILL.md 描述的引擎能力 vs scripts/ 实际落地（2026-09-01 实测）：✅ `validate_output.py`（L3 校验）· ✅ `read_knowledge.py`（经验召回）· ✅ `six_layer_check.py`（合规检查，v3.9.12）· ✅ `checkpoint.py`（断点三态+预期产物清单，rule 39，v3.9.13）· ✅ `cost_log.py`（成本定长行账本，rule 38/53，v3.9.13）· ✅ `lifecycle.py`（五态状态机+Gate 证据门，rule 63，v3.9.13）· ❌ `cli.py design --finalize`（设计锁定 Gate）· ❌ `route_error()`（错误路由器）。**硬约束层已覆盖核心数据/状态类；剩余引擎化项按 rule 64 优先级逐步补齐，判断类（架构评审/审查）永不脚本化。**
+SKILL.md 描述的引擎能力 vs scripts/ 实际落地（2026-09-01 实测）：✅ `validate_output.py`（L3 校验）· ✅ `read_knowledge.py`（经验召回）· ✅ `six_layer_check.py`（合规检查，v3.9.12；v3.14.0 增 `render-silent-fail` 渲染端静默失效五项检查子命令，rule 79）· ✅ `checkpoint.py`（断点三态+预期产物清单，rule 39，v3.9.13）· ✅ `cost_log.py`（成本定长行账本，rule 38/53，v3.9.13）· ✅ `lifecycle.py`（五态状态机+Gate 证据门，rule 63，v3.9.13）· ❌ `cli.py design --finalize`（设计锁定 Gate）· ❌ `route_error()`（错误路由器）。**硬约束层已覆盖核心数据/状态类；剩余引擎化项按 rule 64 优先级逐步补齐，判断类（架构评审/审查）永不脚本化。**

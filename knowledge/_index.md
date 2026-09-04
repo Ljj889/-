@@ -26,10 +26,11 @@
 | rules/R-008_type_gate_false_green.md | rule | active | 类型检查,假绿,tsconfig,include,不可达分支,验证 | 新增目录必须进 tsconfig include，否则 typecheck 是假绿（实测既有 overlay 漏检多年）；不可达分支须标[不可测·已降级]+造脏数据定向验证，不假装已验证 | 2026-09-02 |
 | rules/R-009_module_removability.md | rule | active | 解耦,可移除性,编译期依赖,回调注入,红线自洽 | 可移除性优先于整洁性：宿主相关代码内联宿主文件 + 回调注入替代反向 import；验收=grep 外部引用须收敛到单一装配文件 | 2026-09-02 |
 | framework-skills/ts-smoke-harness.md | framework-skill | active | 验证,冒烟,esbuild,无测试框架,真实模块,rule73 | 无测试框架时满足 rule 73④"导入真实模块"的手法：esbuild bundle 真实源码→node require 断言行为（实测抓到 typecheck 发现不了的语义与幂等缺陷） | 2026-09-02 |
+| rules/R-010_build_config_silent_failure.md | rule | active | 构建配置,静默失效,tailwind,vite,tsconfig,IPC,渲染端 | 构建配置漏扫=静默失效：三层全绿≠没坏——五处高危点（tsconfig include/vite input/tailwind content/preload d.ts/IPC 通道一致性）已引擎化为 six_layer_check render-silent-fail（rule 79，2026-09-05 便签实战硬伤2） | 2026-09-05 |
 
 ## 四桶说明
 - `rules/`：红线，注入 constitution 常驻
 - `decisions/`：ADR，注入 plan 作 rationale
 - `framework-skills/`：可调用能力（当前：experience-distiller 经验蒸馏 · ts-smoke-harness 无测试框架冒烟）
 - `guides/`：可选操作手册（当前：G-001 环境坑 v1.2 · G-002 效果类验收 · G-003 子Agent通道 v1.1 · G-004 monorepo构建 · G-005 web自动化 · G-006 框架合规检查）
-- `rules/`：红线，注入 constitution 常驻（当前 R-001~R-009；R-007 僵尸能力 / R-008 类型门禁假绿 / R-009 可移除性 为 2026-09 新增三兄弟，均属"看起来已验证其实没有"家族且都可 grep 硬校验）
+- `rules/`：红线，注入 constitution 常驻（当前 R-001~R-010；R-007 僵尸能力 / R-008 类型门禁假绿 / R-009 可移除性 / R-010 构建配置静默失效，后三者属"看起来已验证其实没有"家族且都可 grep 硬校验）
