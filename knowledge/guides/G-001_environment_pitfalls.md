@@ -1,8 +1,8 @@
 ---
 title: 实战环境坑合集（Windows 沙箱 + Electron 桌宠）
-version: 1
+version: 2
 owner: 家俊（番茄钟实战）→ 调度器（蒸馏）
-last_verified: 2026-08-12
+last_verified: 2026-09-02
 review_cycle: 90d
 status: active
 tags: [环境坑, Windows, 沙箱, Electron, 排障]
@@ -22,6 +22,9 @@ superseded_by: null
 | 注入页面表达式裸变量 | ReferenceError | `${JSON.stringify()}` 插值，不拼裸变量 |
 | PowerShell 中文+空格路径 | 转义失败 | 用 Bash 绝对路径；**更省事：命令默认在工作区根目录执行，不 `cd` 中文路径**（galagame L3） |
 | **pip/uv 安装与沙箱 safe-delete 冲突（v1.1 · 多宠语音实战 P1）** | 沙箱内装依赖失败 | **依赖安装用非沙箱模式执行**（安装类操作用户确认后放行） |
+| **git 中文 pathspec 静默返回空（v1.2 · 便签实战）** | `git status/diff -- "中文目录/src"` 返回 **0 行**，被误读为"该目录干净"——注意这不是转义失败，是**静默成功** | 先 `Set-Location` 进目标目录再用**相对** pathspec；**任何 0 结果的 git 查询都要换路径复跑一次**再下结论 |
+| **PowerShell `Set-Location` 与 .NET 当前目录不同步（v1.2）** | `[System.IO.File]::ReadAllBytes('相对路径')` 报"未能找到路径的一部分"，路径缺了子目录层 | .NET API 与 `node -e` 一律用 **FullName 拼绝对路径**；npm / git 等子进程不受影响（它们跟随 PowerShell PWD） |
+| **`node -e '...'` 内部双引号被吞（v1.2）** | node 收到 `require(fs)` → `ReferenceError: Cannot access 'fs' before initialization` | 改用 PowerShell 原生 API 实现，或写成临时 `.cjs` 文件再执行 |
 
 **配套原则**：环境限制导致的"不可验证"必须诚实标 `[不可测·真机]` 进未验证项清单（rule 42），不粉饰。
 **关联**：R-001 执行边界（沙箱默认拒绝是环境坑的根源）、rule 43 验证两层制（环境限制下 dry-run 更不可信）。
