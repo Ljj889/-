@@ -353,3 +353,29 @@ model: lite（机械读取，最低档）
 - 超时（30s）/ 返回工具调用轨迹而非报告 / 空结果 / 非法 JSON → 换实例重试 1 次；
 - 连续失败 → `mode:"direct"` + cost_log 留痕降级原因，按 rule 77 直做模式执行（验收纪律不放宽）。
 - 探针结果本身记一行 cost_log：`[探针] | probe | lite | 0 | 成功/失败 | <异常类型>`
+
+## 交付取证包（v3.14.1 新增 · rule 80 · 预埋优于事后加）
+
+用途：GUI/交互类项目在 **Phase 5 交付时随产物交付"取证日志包"**——用户报现象时直接要回传日志行，第一轮就有数据（"现象分诊应该一轮就有，而不是摸出来"）。**防过度工程红线：GUI 仅 4 切面，非 GUI 仅 2 切面，禁止逐函数埋点。**
+
+```
+【交付取证包 · 随 Phase 5 交付物一起给出】
+GUI 项目 4 切面（每切面 1-3 行日志，统一前缀 [DIAG-*]）：
+  1. boot：应用版本 + 启动参数 + 关键环境字段
+     console.log('[DIAG-BOOT]', JSON.stringify({ version: APP_VERSION, args: process.argv.slice(1) }))
+  2. preload 加载：contextBridge 暴露完成信号
+     console.log('[DIAG-PRELOAD] exposed: api')
+  3. IPC 边界：通道进出（invoke/handle 包装层统一打点）
+     console.log('[DIAG-IPC-OUT]', ch); console.log('[DIAG-IPC-IN]', ch)
+  4. 副作用触发点：拖拽/贴边/持久化等副作用函数入口
+     console.log('[DIAG-FX]', 'snapToEdge', JSON.stringify({ trigger: 'mouseup' }))
+非 GUI 项目 2 切面：boot（版本+参数）+ error boundary（全局错误捕获）
+环境快照（配合 rule 80 第 0 步，可选进 diag 命令）：
+  npm run diag → 输出 [ENV-SNAPSHOT] app_version= db_version=(expected=) cache_mtime= config_user= data_rows= status=ok|unavailable
+  （五族漂移：版本/缓存/配置/数据密度/状态；采集失败显式标 unavailable，禁止静默当 PASS）
+
+【Phase 5 交付说明勾选】
+- [ ] 取证日志包已随产物交付（切面清单：___）
+- [ ] 用户报现象时的回传指引已写进运行说明（指向 symptom_triage.md 对应卡）
+- [ ] 样式类改动：build 后已跑 product-assert（或 --force-with-reason 留痕）
+```

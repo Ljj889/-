@@ -27,6 +27,7 @@
 | rules/R-009_module_removability.md | rule | active | 解耦,可移除性,编译期依赖,回调注入,红线自洽 | 可移除性优先于整洁性：宿主相关代码内联宿主文件 + 回调注入替代反向 import；验收=grep 外部引用须收敛到单一装配文件 | 2026-09-02 |
 | framework-skills/ts-smoke-harness.md | framework-skill | active | 验证,冒烟,esbuild,无测试框架,真实模块,rule73 | 无测试框架时满足 rule 73④"导入真实模块"的手法：esbuild bundle 真实源码→node require 断言行为（实测抓到 typecheck 发现不了的语义与幂等缺陷） | 2026-09-02 |
 | rules/R-010_build_config_silent_failure.md | rule | active | 构建配置,静默失效,tailwind,vite,tsconfig,IPC,渲染端 | 构建配置漏扫=静默失效：三层全绿≠没坏——五处高危点（tsconfig include/vite input/tailwind content/preload d.ts/IPC 通道一致性）已引擎化为 six_layer_check render-silent-fail（rule 79，2026-09-05 便签实战硬伤2） | 2026-09-05 |
+| rules/R-011_project_reference_first.md | rule | active | 复用优先,项目内参照,检索序,重造轮子,交互渲染 | 改行为前先 grep 项目内已验证同类实现（拖拽/setBounds 两次重造轮子教训）；rule 64 检索序第一环=项目内参照（最廉先验），找不到才升经验库→网→复现 | 2026-09-05 |
 
 ## 四桶说明
 - `rules/`：红线，注入 constitution 常驻

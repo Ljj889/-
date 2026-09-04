@@ -20,6 +20,13 @@
       - 配置文件存在才检查，不存在标 SKIP（防误报）
       - typecheck 绿 + build 绿 + 不崩 ≠ 真的没坏：这五处任何一个漏扫都是静默失效
 
+    python six_layer_check.py product-assert <项目目录> [--json] [--strict] [--force-with-reason=理由]
+    - 产物级断言（rule 79 第六项 · v3.14.1 研讨会收敛）：build 绿 ≠ 产物真的含所需内容
+      - Tier A 纯 Tailwind 项目：源码引用的 utility 类在产物 CSS 缺失≥3 → FAIL 阻断
+      - CSS Modules/CSS-in-JS 共存 → WARN 不阻断（类名 hash 误报防护，红队裁决）
+      - Tier B product-assert.json：[{"file": "dist/...*", "contains": "字面量"}] 断言通道名等
+      - --force-with-reason=理由 留痕跳过（无 reason 跳过 = Red Flag）；产物陈旧告警
+
 退出码：0=检查完成（非 strict） / 1=有缺失（strict） / 2=目录不存在
 """
 import json
@@ -413,13 +420,215 @@ def render_silent_fail_report(res: dict) -> str:
     return "\n".join(lines)
 
 
+# ---------- 产物级断言（rule 79 第六项 · v3.14.1 新增） ----------
+# 来源：2026-09-05 研讨会收敛（4 HT × 2 轮）——build 绿 ≠ 产物真的含所需样式/字面量。
+# Tailwind content 漏扫实测四轮才定位，根因是"从没 grep 过产物 CSS"。
+# 红队裁决（狼来了防线）：纯 Tailwind 项目硬阻断；检测到 CSS Modules/CSS-in-JS
+# 共存 → 降级 WARN（类名 hash 会误报）；--force-with-reason 留痕跳过。
+
+_PROD_DIRS = ("dist", "build", "out", "release")
+_TAILWIND_PREFIXES = ("bg-", "text-", "border-", "p-", "px-", "py-", "pt-", "pb-", "pl-", "pr-",
+                      "m-", "mx-", "my-", "mt-", "mb-", "ml-", "mr-", "w-", "h-", "min-w-", "max-w-",
+                      "gap-", "rounded-", "shadow-", "font-", "leading-", "tracking-", "opacity-",
+                      "z-", "top-", "right-", "bottom-", "left-", "inset-", "flex-", "grid-", "gap-")
+
+
+def _latest_mtime(root: Path, dirs, exts=None) -> float:
+    latest = 0.0
+    for dirpath, dirnames, filenames in os.walk(root):
+        rel_parts = Path(dirpath).relative_to(root).parts
+        if any(p in _SCAN_EXCLUDES for p in rel_parts):
+            dirnames[:] = []
+            continue
+        dirnames[:] = [d for d in dirnames if d not in _SCAN_EXCLUDES]
+        for fn in filenames:
+            if exts and Path(fn).suffix.lower() not in exts:
+                continue
+            try:
+                m = (Path(dirpath) / fn).stat().st_mtime
+                if m > latest:
+                    latest = m
+            except OSError:
+                pass
+    return latest
+
+
+def _extract_expected_classes(root: Path) -> set:
+    """从源码 class/className 字面量提取疑似 tailwind utility 类（动态类取静态前缀）"""
+    expected = set()
+    class_pat = re.compile(r"""class(?:Name)?\s*=\s*["'`]([^"'`]+)["'`]""")
+    for p, relp in _walk_src(root):
+        if Path(relp).suffix.lower() not in {".tsx", ".jsx", ".ts", ".js", ".html", ".vue", ".svelte"}:
+            continue
+        try:
+            txt = p.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            continue
+        txt = re.sub(r"/\*.*?\*/|^\s*//.*$", "", txt, flags=re.S | re.M)
+        for mm in class_pat.finditer(txt):
+            for tok in mm.group(1).split():
+                if "${" in tok:
+                    tok = tok.split("${")[0].rstrip("-")  # 动态类取静态前缀：bg-${c} → bg
+                tok = tok.split(":")[-1]                  # 剥变体前缀 hover:bg-x → bg-x
+                if any(tok.startswith(pre) or tok == pre[:-1] for pre in _TAILWIND_PREFIXES) and len(tok) > 2:
+                    expected.add(tok)
+    return expected
+
+
+def _class_in_css(css_text: str, cls: str) -> bool:
+    """字面量或 CSS 转义形式任一命中"""
+    if cls in css_text:
+        return True
+    esc = cls.replace("[", r"\[").replace("]", r"\]").replace(":", r"\:").replace("/", r"\/").replace(".", r"\.")
+    return esc in css_text
+
+
+def check_product_assert(project_dir: str) -> dict:
+    """产物级断言（rule 79 第六项）：build 产物 grep 断言。纯 Tailwind 硬阻断，共存 WARN。"""
+    root = Path(project_dir)
+    if not root.is_dir():
+        return {"ok": False, "error": f"目录不存在: {project_dir}"}
+    prod_dir = None
+    for d in _PROD_DIRS:
+        if (root / d).is_dir():
+            prod_dir = root / d
+            break
+    if prod_dir is None:
+        return {"ok": True, "root": str(root), "mode": "product-assert", "forced_skip": None,
+                "items": [{"key": "product", "name": "构建产物目录", "status": "SKIP",
+                           "detail": "未找到 dist/build/out/release——先 build 再断言"}],
+                "fail_count": 0, "skip_count": 1, "warn_count": 0}
+
+    items = []
+    # 陈旧产物告警
+    src_mtime = _latest_mtime(root, None, exts={".ts", ".tsx", ".js", ".jsx", ".css", ".html", ".vue"})
+    try:
+        prod_mtime = max((f.stat().st_mtime for f in prod_dir.rglob("*") if f.is_file()), default=0.0)
+    except OSError:
+        prod_mtime = 0.0
+    if src_mtime and prod_mtime and prod_mtime < src_mtime:
+        items.append({"key": "stale", "name": "产物新鲜度", "status": "WARN",
+                      "detail": "产物目录早于源码修改（陈旧产物）——先重新 build 再断言，否则断言的是旧产物"})
+
+    css_text = ""
+    css_files = list(prod_dir.rglob("*.css"))
+    for f in css_files:
+        try:
+            css_text += f.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            pass
+    all_prod_text = css_text
+    for f in prod_dir.rglob("*.js"):
+        try:
+            all_prod_text += f.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            pass
+
+    # Tier A：纯 Tailwind 检测
+    tw_cfg = any((root / f"tailwind.config.{e}").exists() for e in ("js", "ts", "cjs", "mjs"))
+    if tw_cfg and css_files:
+        coexist = []
+        for _, relp in _walk_src(root):
+            lp = relp.lower()
+            if lp.endswith((".module.css", ".module.scss", ".module.less")):
+                coexist.append(relp)
+            elif lp.endswith((".ts", ".tsx", ".js", ".jsx")):
+                try:
+                    head = (root / relp).read_text(encoding="utf-8", errors="ignore")[:20000]
+                except Exception:
+                    continue
+                if "styled-components" in head or "@emotion" in head or "styled(" in head:
+                    coexist.append(relp)
+        if coexist:
+            items.append({"key": "tier_a", "name": "Tailwind 产物断言（Tier A）", "status": "WARN",
+                          "detail": f"检测到 CSS Modules/CSS-in-JS 共存（{', '.join(coexist[:3])}{'…' if len(coexist) > 3 else ''}）"
+                                    f"——类名 hash 会误报，降级 WARN 不阻断；如需硬断言用 Tier B 声明清单"})
+        else:
+            expected = _extract_expected_classes(root)
+            missing = sorted(c for c in expected if not _class_in_css(css_text, c))
+            if len(missing) >= 3:
+                items.append({"key": "tier_a", "name": "Tailwind 产物断言（Tier A · 纯 Tailwind 硬 Gate）", "status": "FAIL",
+                              "detail": f"产物 CSS 缺失 {len(missing)} 个源码引用的 utility 类（样式静默丢失）："
+                                        + ", ".join(missing[:10]) + ("…" if len(missing) > 10 else "")})
+            elif missing:
+                items.append({"key": "tier_a", "name": "Tailwind 产物断言（Tier A）", "status": "PASS",
+                              "detail": f"{len(expected)} 个期望类中 {len(missing)} 个未命中（<3 视为噪声）: " + ", ".join(missing)})
+            else:
+                items.append({"key": "tier_a", "name": "Tailwind 产物断言（Tier A）", "status": "PASS",
+                              "detail": f"{len(expected)} 个期望 utility 类全部命中产物 CSS"})
+
+    # Tier B：作者声明清单（product-assert.json）
+    pa_file = root / "product-assert.json"
+    if pa_file.exists():
+        try:
+            rules = json.loads(pa_file.read_text(encoding="utf-8"))
+        except Exception as e:
+            items.append({"key": "tier_b", "name": "声明清单断言（Tier B）", "status": "FAIL",
+                          "detail": f"product-assert.json 解析失败: {e}"})
+            rules = []
+        for i, r in enumerate(rules if isinstance(rules, list) else []):
+            pat, contains = r.get("file"), r.get("contains")
+            if not pat or not contains:
+                items.append({"key": "tier_b", "name": f"声明清单[{i}]", "status": "FAIL",
+                              "detail": "条目缺 file 或 contains 字段"})
+                continue
+            hits = list(prod_dir.glob(pat)) if not (root / pat).exists() else [root / pat]
+            blob = ""
+            for f in hits:
+                try:
+                    blob += f.read_text(encoding="utf-8", errors="ignore")
+                except Exception:
+                    pass
+            if contains in blob:
+                items.append({"key": "tier_b", "name": f"声明清单[{i}] {pat}∋{contains[:30]}", "status": "PASS", "detail": "命中"})
+            else:
+                items.append({"key": "tier_b", "name": f"声明清单[{i}] {pat}∋{contains[:30]}", "status": "FAIL",
+                              "detail": "字面量未出现在产物中（通道名/expose key 静默丢失）"})
+    if not any(it["key"] in ("tier_a", "tier_b") for it in items):
+        items.append({"key": "product", "name": "产物断言", "status": "SKIP",
+                      "detail": "无 tailwind 配置且无 product-assert.json——无可断言项（需要时建 product-assert.json）"})
+
+    fail_count = sum(1 for it in items if it["status"] == "FAIL")
+    skip_count = sum(1 for it in items if it["status"] == "SKIP")
+    warn_count = sum(1 for it in items if it["status"] == "WARN")
+    return {"ok": True, "root": str(root), "mode": "product-assert", "forced_skip": None,
+            "items": items, "fail_count": fail_count, "skip_count": skip_count, "warn_count": warn_count}
+
+
+def render_product_assert_report(res: dict) -> str:
+    lines = [f"[six_layer_check] 项目: {res['root']}  模式: {res['mode']}（产物级断言 · rule 79 v3.14.1）"]
+    for it in res["items"]:
+        mark = {"PASS": "✓", "FAIL": "✗", "SKIP": "-", "WARN": "!"}.get(it["status"], "?")
+        lines.append(f"  {mark} [{it['status']:4s}] {it['name']}  <-  {it['detail']}" if it["status"] != "PASS"
+                     else f"  {mark} [{it['status']:4s}] {it['name']}  ({it['detail']})")
+    if res.get("forced_skip"):
+        lines.append(f"⚠️ 已留痕强制跳过: {res['forced_skip']}")
+    if res["fail_count"]:
+        lines.append(f"✗ 产物断言 {res['fail_count']} 项 FAIL——build 绿 ≠ 产物真的含所需内容（交付 Gate 阻断）")
+        lines.append("→ 修复对照 references/symptom_triage.md 卡2；确认无样式需求可 --force-with-reason=理由 留痕跳过")
+    else:
+        lines.append(f"✓ 产物断言通过（FAIL 0 / WARN {res['warn_count']} / SKIP {res['skip_count']}）")
+    return "\n".join(lines)
+
+
 def main():
     argv = sys.argv[1:]
-    verb = argv[0] if argv and argv[0] == "render-silent-fail" else None
+    verb = None
+    if argv and argv[0] == "render-silent-fail":
+        verb = "render-silent-fail"
+    elif argv and argv[0] == "product-assert":
+        verb = "product-assert"
     if verb:
         argv = argv[1:]
+    # --force-with-reason=理由 → 留痕跳过（仅 product-assert 生效）
+    force_reason = None
+    flags = set()
+    for a in argv:
+        if a.startswith("--force-with-reason="):
+            force_reason = a.split("=", 1)[1]
+        elif a.startswith("--"):
+            flags.add(a)
     args = [a for a in argv if not a.startswith("--")]
-    flags = set(a for a in argv if a.startswith("--"))
     project_dir = args[0] if args else "."
     mode = "auto"
     for m in ("init", "deliver"):
@@ -428,15 +637,23 @@ def main():
     strict = "--strict" in flags
     as_json = "--json" in flags
 
-    if verb == "render-silent-fail":
-        res = check_render_silent_fail(project_dir)
+    if verb in ("render-silent-fail", "product-assert"):
+        if verb == "render-silent-fail":
+            res = check_render_silent_fail(project_dir)
+            report = render_silent_fail_report(res)
+        else:
+            res = check_product_assert(project_dir)
+            if force_reason and res.get("ok"):
+                res["forced_skip"] = force_reason
+                res["fail_count"] = 0
+            report = render_product_assert_report(res)
         if not res.get("ok"):
             print(f"[six_layer_check] {res.get('error')}")
             sys.exit(2)
         if as_json:
             print(json.dumps(res, ensure_ascii=False, indent=2))
         else:
-            print(render_silent_fail_report(res))
+            print(report)
         if strict and res.get("fail_count", 0) > 0:
             sys.exit(1)
         sys.exit(0)
