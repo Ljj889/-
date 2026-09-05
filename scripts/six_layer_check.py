@@ -640,16 +640,16 @@ def main():
     if verb in ("render-silent-fail", "product-assert"):
         if verb == "render-silent-fail":
             res = check_render_silent_fail(project_dir)
-            report = render_silent_fail_report(res)
         else:
             res = check_product_assert(project_dir)
-            if force_reason and res.get("ok"):
-                res["forced_skip"] = force_reason
-                res["fail_count"] = 0
-            report = render_product_assert_report(res)
         if not res.get("ok"):
             print(f"[six_layer_check] {res.get('error')}")
             sys.exit(2)
+        if verb == "product-assert" and force_reason:
+            res["forced_skip"] = force_reason
+            res["fail_count"] = 0
+        report = (render_silent_fail_report(res) if verb == "render-silent-fail"
+                  else render_product_assert_report(res))
         if as_json:
             print(json.dumps(res, ensure_ascii=False, indent=2))
         else:
