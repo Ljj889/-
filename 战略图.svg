@@ -1,6 +1,6 @@
-<svg viewBox="0 0 680 392" width="100%" xmlns="http://www.w3.org/2000/svg" role="img">
-<title>six-layer-orchestrator 独立化战略图 v3.13.0</title>
-<desc>两版合并 → 独立仓库 → 三处同步 + 远程推送的进度与范围地图</desc>
+<svg viewBox="0 0 680 420" width="100%" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>six-layer-orchestrator 独立化战略图 v3.13.0（专题冻结）</title>
+<desc>两版合并 → 独立仓库 → 三处同步 + 远程推送的进度与范围地图；独立化后框架演进见多agent合作/交接/战略图.md</desc>
 <defs>
   <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
     <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -70,4 +70,7 @@
 <text x="352" y="258" font-family="sans-serif" font-size="11" fill="#185FA5" dominant-baseline="central">下一步</text>
 
 <text x="40" y="366" font-family="sans-serif" font-size="12" fill="#5F5E5A">下一步 → 仓库改名 six-layer-orchestrator · 引擎闭环（design/route_error）· 真实项目验证后评估引擎独立仓</text>
+
+<rect x="40" y="378" width="600" height="32" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="52" y="394" font-family="sans-serif" font-size="12" fill="#0C447C" dominant-baseline="central">⏩ 独立化后框架持续演进：v3.14.0（rule 77-81 实战五反馈）→ v3.14.1（改错能力研讨会收敛：归因闭环/产物断言/环境快照）— 最新状态见 多agent合作/交接/战略图.md</text>
 </svg>
