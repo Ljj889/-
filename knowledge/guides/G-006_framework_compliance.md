@@ -3,9 +3,9 @@ type: guide
 date: 2026-09-01
 tags: 框架合规,软约束失效,合规检查,six_layer_check,并发会话,galagame
 confidence: high
-version: 1
+version: 2
 owner: six-layer-orchestrator
-last_verified: 2026-09-01
+last_verified: 2026-09-06
 review_cycle: 90d
 status: active
 source: galagame 项目实战（2026-08/09）
@@ -47,3 +47,12 @@ source: galagame 项目实战（2026-08/09）
 - 本指南是 rule 64（硬约束优先——能硬约束的绝不靠自觉）的落地案例：把"靠自觉记得走框架"引擎化为可检查脚本。
 - 与 G-001（环境坑）并列：G-001 治"环境问题"，本指南治"流程合规问题"。
 - 引擎化优先级参照 rule 64 第 269 行：数据类校验（本检查清单）→ 脚本/CLI；状态流转 → 状态机硬拦截；纯判断类 → 保留提示词+多 Agent 制衡。
+
+## 脚本 Gate 的 FAIL 甄别与空洞 PASS（v2 · 2026-09-06 便签反馈回合2）
+
+**当** 引擎化检查脚本（six_layer_check render-silent-fail / product-assert 等）报 FAIL 或可疑 PASS 时 → **易犯** 见 FAIL 就回退改配置，或把"0 个期望 X 全部命中"式的空洞通过当全绿 → **护栏**：
+
+1. **FAIL 先做改动范围对焦**：本轮 diff 涉及的目录/符号是否真缺覆盖？启发式脚本常把比较域放大到全仓——实测 render-silent-fail 的 tailwind content 检查把**非 UI 目录**（src/main、src/preload、tmp、out-old-* 等历史产物目录）也纳入"应覆盖"集合，而本轮实际改动目录（sticky-window/goal-window）全在 content 配置内 → 噪音。
+2. **产物级独立取证一锤定音**：grep 产物 CSS/JS/产物清单（rule 79⑥ 的手法用在甄别上）——新增 utility 类全命中 → 记"启发式噪音"放行并留痕 cost_log；不静默忽略，也不无脑回退。
+3. **空洞 PASS 识别**：报告计数为 0 的"全命中/全通过"是无信息量结论（实测 product-assert 抽到 0 个期望类即 vacuous 通过），视为未验证，必须补独立取证才算数。
+4. **脚本改进另立任务**：启发式噪音是脚本的改进候选（如收窄比较域到 UI 目录），但修脚本别在交付当轮顺手大改——先留痕放行，脚本收敛单独立项。

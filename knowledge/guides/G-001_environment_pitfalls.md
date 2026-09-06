@@ -1,11 +1,11 @@
 ---
 title: 实战环境坑合集（Windows 沙箱 + Electron 桌宠）
-version: 2
+version: 3
 owner: 家俊（番茄钟实战）→ 调度器（蒸馏）
-last_verified: 2026-09-02
+last_verified: 2026-09-06
 review_cycle: 90d
 status: active
-tags: [环境坑, Windows, 沙箱, Electron, 排障]
+tags: [环境坑, Windows, 沙箱, Electron, 排障, Python, 控制台编码]
 source: 六层开发框架实战经验_2026-08-12.md §E（番茄钟 06 复盘 P1-4 实测）
 supersedes: null
 superseded_by: null
@@ -25,6 +25,9 @@ superseded_by: null
 | **git 中文 pathspec 静默返回空（v1.2 · 便签实战）** | `git status/diff -- "中文目录/src"` 返回 **0 行**，被误读为"该目录干净"——注意这不是转义失败，是**静默成功** | 先 `Set-Location` 进目标目录再用**相对** pathspec；**任何 0 结果的 git 查询都要换路径复跑一次**再下结论 |
 | **PowerShell `Set-Location` 与 .NET 当前目录不同步（v1.2）** | `[System.IO.File]::ReadAllBytes('相对路径')` 报"未能找到路径的一部分"，路径缺了子目录层 | .NET API 与 `node -e` 一律用 **FullName 拼绝对路径**；npm / git 等子进程不受影响（它们跟随 PowerShell PWD） |
 | **`node -e '...'` 内部双引号被吞（v1.2）** | node 收到 `require(fs)` → `ReferenceError: Cannot access 'fs' before initialization` | 改用 PowerShell 原生 API 实现，或写成临时 `.cjs` 文件再执行 |
+| **Python 缺失 / py 启动器指向失效安装（v1.3 · 便答回合2）** | `python` 不在 PATH；`py` 启动器注册的 `Python312\python.exe` 实际不存在（卸载残留）→ "Unable to create process" | 先 `Test-Path <注册路径>` 探测；缺失用平台 `install_binary(python)` 装受管运行时，用其返回的**绝对路径**执行框架脚本 |
+| **GBK 控制台 UnicodeEncodeError（v1.3）** | Python 脚本 print `✓/✗` 等非 GBK 字符崩（`'gbk' codec can't encode`）——**检查逻辑已跑完，只是输出崩**，别误判为脚本故障 | 执行前设 `$env:PYTHONUTF8='1'`（或 `PYTHONIOENCODING=utf-8`） |
+| **删除类命令审批超时（v1.3）** | `Remove-Item` 触发用户审批，用户不在场 → 超时取消（连试两次都超时） | 不阻塞交付：临时文件留在 tmp/（未跟踪、无害），交付说明里记"待清理清单"，下轮顺手清；避免把可延后的清理卡成流程阻塞 |
 
 **配套原则**：环境限制导致的"不可验证"必须诚实标 `[不可测·真机]` 进未验证项清单（rule 42），不粉饰。
 **关联**：R-001 执行边界（沙箱默认拒绝是环境坑的根源）、rule 43 验证两层制（环境限制下 dry-run 更不可信）。
