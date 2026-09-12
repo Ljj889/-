@@ -15,10 +15,10 @@
 | decisions/ADR-001_shared_state_layer.md | decision | active | 共享状态,黑板,交接schema,架构决策 | 显式共享状态层+类型化交接 schema（阶段 2 落地） | 2026-08-11 |
 | decisions/ADR-002_cache_friendly_prompt.md | decision | active | 提示词缓存,性能,prompt组装 | 静态前缀/动态尾部分离，cache hit 当核心指标（7%→84%） | 2026-08-11 |
 | framework-skills/experience-distiller.md | framework-skill | active | 经验蒸馏,知识沉淀,Phase7 | 按名可调用的蒸馏能力（Phase 7 专用，模板见 task_templates） | 2026-08-12 |
-| guides/G-001_environment_pitfalls.md | guide | active | 环境坑,Windows,沙箱,Electron,git,pathspec,Python,控制台编码 | 实战环境坑合集 v1.3（v1.2 基础上 + **Python 缺失/py 启动器失效→install_binary 受管运行时** / **GBK 控制台 UnicodeEncodeError→PYTHONUTF8=1** / **删除类审批超时→留存 tmp 记清理清单**） | 2026-09-06 |
-| guides/G-002_effect_acceptance_guide.md | guide | active | 效果类,主观验收,MOS,语音 | 效果类验收指南（MOS/CMOS/MUSHRA + 维度拆解 + 盲测，rule 61 操作手册） | 2026-08-13 |
+| guides/G-001_environment_pitfalls.md | guide | active | 环境坑,Windows,沙箱,Electron,git,pathspec,Python,控制台编码,运行时探针,PATH,WSL,审批模型 | 实战环境坑合集 v1.4（v1.3 基础上 + **node/npm 不在 PATH（指向已删除版本目录）→运行时探针+绝对路径** / **无 Git Bash 只有 WSL → .sh 的 C:/ 路径不兼容，改用 .ps1** / **读+写/删混命令→审批超时被取消，拆独立命令**） | 2026-09-12 |
+| guides/G-002_effect_acceptance_guide.md | guide | active | 效果类,主观验收,MOS,语音,净机模拟,user-data-dir,审美反馈 | 效果类验收指南（MOS/CMOS/MUSHRA + 维度拆解 + 盲测，rule 61 操作手册）；**v2 补净机模拟（`--user-data-dir` 干净档案验首启，不动真实数据）+ 审美/口吻类反馈"一句话确认"话术** | 2026-09-12 |
 | guides/G-003_agent_channel_fallback.md | guide | active | 编排,子Agent,通道故障,出口,CDP,实例占用 | 子 Agent 通道失效→rule 46 直执行出口；**变体1 任务书空投递 / 变体2 返回工具轨迹无正文**的鉴别与处置；CDP 前探测实例占用与 DB 备份（2026-08-16 番茄钟 + 2026-09-02 便签实战） | 2026-09-02 |
-| rules/R-007_zombie_capability.md | rule | active | 僵尸能力,调用点,验收,死代码,第二真相源,preload参数焊死 | 无调用点的能力=僵尸（galagame 关系系统 scanRelationshipState 零调用/备份双实现/idb 单例未 init）：新能力必须有宿主接线点；验收前 grep 调用方，无调用点禁止标已验证；**v2 补 preload/胶水层参数焊死变体**（handler 支持但 preload 不传=渲染端能力事实不存在，逐参数对齐 preload↔handler↔d.ts 三处） | 2026-09-06 |
+| rules/R-007_zombie_capability.md | rule | active | 僵尸能力,调用点,验收,死代码,第二真相源,preload参数焊死,状态同步 | 无调用点的能力=僵尸（galagame 关系系统 scanRelationshipState 零调用/备份双实现/idb 单例未 init）：新能力必须有宿主接线点；验收前 grep 调用方，无调用点禁止标已验证；**v2 补 preload/胶水层参数焊死变体**（handler 支持但 preload 不传=渲染端能力事实不存在，逐参数对齐 preload↔handler↔d.ts 三处）；**v3 补切换类状态同步变体**（切角色不同步 pet_name / 亮暗跟随系统而非应用内主题 → 列派生状态清单 + 结构性断言） | 2026-09-12 |
 | guides/G-004_monorepo_build_order.md | guide | active | monorepo,workspace,构建顺序,dist,typecheck | 改 workspace 底层包先 build 再 typecheck 消费方——消费方解析 dist 而非 src，TS2353 假错识别法（galagame 统一设置面板实战） | 2026-09-01 |
 | guides/G-005_web_automation_env.md | guide | active | 环境坑,web,CDP,vite,自动化验证,临时脚本 | web 前端自动化验证坑：vite preview 127.0.0.1/CDP page target/node 加载 TS 源码包须 tsx/BOM 扫描/临时脚本清理 fs.unlinkSync/PATH 每命令前置（galagame 实战） | 2026-09-01 |
 | decisions/ADR-003_settings_entry_consolidation.md | decision | active | 设置面板,信息架构,功能与设置配套,UI | 设置集中单一入口分 tab（⚙️+模型/语音/数据）；新功能默认自带设置项 UI；共用配置 UI 注明（galagame 统一设置面板实战） | 2026-09-01 |
@@ -28,10 +28,11 @@
 | framework-skills/ts-smoke-harness.md | framework-skill | active | 验证,冒烟,esbuild,无测试框架,真实模块,rule73 | 无测试框架时满足 rule 73④"导入真实模块"的手法：esbuild bundle 真实源码→node require 断言行为（实测抓到 typecheck 发现不了的语义与幂等缺陷） | 2026-09-02 |
 | rules/R-010_build_config_silent_failure.md | rule | active | 构建配置,静默失效,tailwind,vite,tsconfig,IPC,渲染端 | 构建配置漏扫=静默失效：三层全绿≠没坏——五处高危点（tsconfig include/vite input/tailwind content/preload d.ts/IPC 通道一致性）已引擎化为 six_layer_check render-silent-fail（rule 79，2026-09-05 便签实战硬伤2） | 2026-09-05 |
 | rules/R-011_project_reference_first.md | rule | active | 复用优先,项目内参照,检索序,重造轮子,交互渲染 | 改行为前先 grep 项目内已验证同类实现（拖拽/setBounds 两次重造轮子教训）；rule 64 检索序第一环=项目内参照（最廉先验），找不到才升经验库→网→复现 | 2026-09-05 |
+| rules/R-012_idempotent_import_visibility.md | rule | active | 幂等,配置注入,静默失效,首启导入,分发预置,验收清单,rule80 | 幂等导入必须留痕：跳过必打日志 + 字段级 skip(reason=user-set/default-equal/empty) + 版本化重导 + 交付标注"只对新档生效" + 直读设置表核对（2026-09-12 番茄宠物V2 preset/personalize 双命中） | 2026-09-12 |
+| framework-skills/real-source-repro.md | framework-skill | active | 复现,取证,最小样例,esbuild,私有函数,真实数据,rule41,rule82,rule73 | 真实源码函数 + 真实数据的最小复现手法：esbuild 转译**真实源文件片段**取私有函数，打印"实际发出去了什么"——禁复刻逻辑自测（2026-09-12 番茄宠物V2 嵌套标签定位 + 抓出僵尸分支） | 2026-09-12 |
 
 ## 四桶说明
-- `rules/`：红线，注入 constitution 常驻
-- `decisions/`：ADR，注入 plan 作 rationale
-- `framework-skills/`：可调用能力（当前：experience-distiller 经验蒸馏 · ts-smoke-harness 无测试框架冒烟）
-- `guides/`：可选操作手册（当前：G-001 环境坑 v1.2 · G-002 效果类验收 · G-003 子Agent通道 v1.1 · G-004 monorepo构建 · G-005 web自动化 · G-006 框架合规检查）
-- `rules/`：红线，注入 constitution 常驻（当前 R-001~R-010；R-007 僵尸能力 / R-008 类型门禁假绿 / R-009 可移除性 / R-010 构建配置静默失效，后三者属"看起来已验证其实没有"家族且都可 grep 硬校验）
+- `rules/`：红线，注入 constitution 常驻（当前 R-001~R-012；R-007 僵尸能力 / R-008 类型门禁假绿 / R-009 可移除性 / R-010 构建配置静默失效 / R-011 项目内参照物优先 / R-012 幂等导入可见性——后四者属"看起来已验证其实没有"家族且都可 grep/断言硬校验）
+- `decisions/`：ADR，注入 plan 作 rationale（当前 ADR-001~003）
+- `framework-skills/`：可调用能力（当前：experience-distiller 经验蒸馏 · ts-smoke-harness 无测试框架冒烟 · real-source-repro 真实源码函数复现）
+- `guides/`：可选操作手册（当前：G-001 环境坑 v1.4 · G-002 效果类验收 v2 · G-003 子Agent通道 v1.1 · G-004 monorepo构建 · G-005 web自动化 · G-006 框架合规检查 v2）
